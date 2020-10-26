@@ -1,0 +1,40 @@
+# funciones de lectura y datos de actividad
+características  <- read.table ( " ./UCI HAR Dataset / features.txt " )
+actividades  <- read.table ( " ./UCI HAR Dataset / activity_labels.txt " )
+
+# leer datos de trenes
+train  <- read.table ( " ./UCI HAR Dataset / train / X_train.txt " ) # incluye datos
+colnames ( train ) <-  presenta $ V2  # nombres de columna descriptivos para datos (PASO 4)
+y_train  <- read.table ( " ./UCI HAR Dataset / train / y_train.txt " ) # etiquetas de actividad
+tren $ actividad  <-  y_train $ V1
+subject_train  <- read.table ( " ./UCI HAR Dataset / train / subject_train.txt " ) # sujetos
+tren $ sujeto  <-  factor ( sujeto_train $ V1 )
+
+
+# lectura de datos de prueba
+test  <- read.table ( " ./UCI HAR Dataset / test / X_test.txt " )
+colnames ( prueba ) <-  características $ V2
+y_test  <- read.table ( " ./UCI HAR Dataset / test / y_test.txt " )
+prueba $ actividad  <-  y_test $ V1
+subject_test  <- read.table ( " ./UCI HAR Dataset / test / subject_test.txt " )
+prueba $ sujeto  <-  factor ( sujeto_prueba $ V1 )
+
+# fusionar el tren y los conjuntos de prueba (PASO 1)
+conjunto de datos  <- rbind ( prueba , tren )
+
+# filtrar nombres de columnas (PASO 2)
+column.names  <- colnames ( conjunto de datos )
+# obtener solo columnas para la desviación estándar y los valores medios, también guarda la actividad y los valores del tema
+column.names.filtered  <- grep ( " std \\ ( \\ ) | mean \\ ( \\ ) | activity | subject " , column.names , value = TRUE )
+dataset.filtered  <-  dataset [, column.names.filtered ]
+
+# agregar valores descriptivos para las etiquetas de actividad (PASO 3)
+dataset.filtered $ activitylabel  <-  factor ( dataset.filtered $ activity , labels = c ( " WALKING " , " WALKING_UPTAIRS " , " WALKING_DOWNSTAIRS " , " SITTING " , " STANDING " , " ACOSTADO " ))
+
+# crear un conjunto de datos ordenado con valores medios para cada tema y actividad
+features.colnames  = grep ( " std \\ ( \\ ) | mean \\ ( \\ ) " , column.names , value = TRUE )
+dataset.melt  <- melt ( dataset.filtered , id  = c ( ' activitylabel ' , ' subject ' ), measure.vars  =  features.colnames )
+dataset.tidy  <- dcast ( dataset.melt , activitylabel  +  sujeto  ~  variables , media )
+                                         
+# crear un archivo de conjunto de datos ordenado  
+write.table ( dataset.tidy , archivo  =  " tidydataset.txt "  row.names  =  FALSO )
